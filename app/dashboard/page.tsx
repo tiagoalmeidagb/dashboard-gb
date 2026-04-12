@@ -25,13 +25,11 @@ import {
 } from "recharts"
 
 export default function DashboardPage() {
-  // ✅ DEFAULT = THIS MONTH
   const [range, setRange] = useState({
     from: startOfMonth(new Date()),
     to: endOfMonth(new Date()),
   })
 
-  // ✅ dados fake (memo pra não regenerar toda render)
   const transactions = useMemo(() => generateFakeData(1500), [])
 
   const metrics = useMemo(() => {
@@ -49,6 +47,17 @@ export default function DashboardPage() {
       range.to
     )
   }, [transactions, range])
+
+  // ✅ FIX: tipagem correta dos cards
+  const cards: {
+    label: string
+    key: "total" | "instructor" | "integration" | "non-icp"
+  }[] = [
+    { label: "Total", key: "total" },
+    { label: "Instructor Certification", key: "instructor" },
+    { label: "Integration", key: "integration" },
+    { label: "Non-ICP", key: "non-icp" },
+  ]
 
   return (
     <SidebarProvider>
@@ -69,34 +78,17 @@ export default function DashboardPage() {
               </h1>
 
               <DateRangePicker
-  value={range}
-  onChange={(r) => {
-    if (r?.from && r?.to) setRange(r)
-  }}
-/>
+                value={range}
+                onChange={(r) => {
+                  if (r?.from && r?.to) setRange(r)
+                }}
+              />
             </div>
 
             {/* KPI CARDS */}
             <div className="grid gap-6 md:grid-cols-4">
 
-              {[
-                {
-                  label: "Total",
-                  key: "total",
-                },
-                {
-                  label: "Instructor Certification",
-                  key: "instructor",
-                },
-                {
-                  label: "Integration",
-                  key: "integration",
-                },
-                {
-                  label: "Non-ICP",
-                  key: "non-icp",
-                },
-              ].map((card) => {
+              {cards.map((card) => {
                 const data = metrics?.[card.key]
 
                 return (
@@ -123,10 +115,7 @@ export default function DashboardPage() {
                         }`}
                       >
                         {data.growth >= 0 ? "↑" : "↓"}{" "}
-                        {Math.abs(
-                          Math.round(data.growth)
-                        )}
-                        %
+                        {Math.abs(Math.round(data.growth))}%
                       </p>
                     )}
                   </div>
@@ -138,13 +127,11 @@ export default function DashboardPage() {
             {/* AREA CHART */}
             <div className="rounded-2xl bg-white p-6 shadow-sm">
 
-              {/* HEADER */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-sm font-medium text-gray-700">
                   Sales per period
                 </h2>
 
-                {/* LEGEND */}
                 <div className="flex gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <span className="w-3 h-[6px] rounded bg-green-500" />
@@ -157,9 +144,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* CHART */}
               <div className="h-[300px]">
-
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
 
@@ -213,7 +198,6 @@ export default function DashboardPage() {
 
                   </AreaChart>
                 </ResponsiveContainer>
-
               </div>
 
             </div>
