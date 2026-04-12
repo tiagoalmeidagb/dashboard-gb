@@ -68,7 +68,7 @@ export default function DashboardPage() {
                 Sales Report
               </h1>
 
-              <<DateRangePicker
+              <DateRangePicker
   value={range}
   onChange={(r) => {
     if (r?.from && r?.to) setRange(r)
