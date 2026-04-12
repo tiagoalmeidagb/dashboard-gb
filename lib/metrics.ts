@@ -26,11 +26,11 @@ function toDateOnly(dateStr: string) {
 /* FILTER */
 /* ---------------------------------- */
 
-export function filterByDate(
-  data: Transaction[],
+export function filterByDate<T extends { date: string }>(
+  data: T[],
   from: Date,
   to: Date
-) {
+): T[] {
   const fromDate = normalizePhoenixDate(from)
   const toDate = normalizePhoenixDate(to)
 

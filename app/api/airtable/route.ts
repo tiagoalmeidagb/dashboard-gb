@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { unstable_cache } from "next/cache"
 
-export const revalidate = 300
+export const dynamic = "force-dynamic"
 
 /* ---------------------------------- */
 /* HELPERS */

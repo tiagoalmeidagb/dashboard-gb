@@ -29,9 +29,6 @@ import { calculateNewVsReturningRevenue } from "@/lib/revenue-segmentation"
 
 type Tab = "sales" | "website" | "email"
 
-// ✅ FIX AQUI
-type MetricKey = "total" | "instructor" | "integration" | "non-icp"
-
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sales")
 
@@ -45,6 +42,8 @@ export default function DashboardPage() {
 
   const [loading, setLoading] = useState(true)
   const [loadingFull, setLoadingFull] = useState(true)
+
+  /* ---------------- FETCH DASHBOARD DATA ---------------- */
 
   useEffect(() => {
     async function fetchData() {
@@ -62,6 +61,8 @@ export default function DashboardPage() {
     fetchData()
   }, [])
 
+  /* ---------------- FETCH FULL DATA ---------------- */
+
   useEffect(() => {
     async function fetchFull() {
       try {
@@ -78,30 +79,42 @@ export default function DashboardPage() {
     fetchFull()
   }, [])
 
+  /* ---------------- KPI ---------------- */
+
   const metrics = useMemo(() => {
     if (!transactions.length) return null
     return buildDashboardMetrics(transactions, range.from, range.to)
   }, [transactions, range])
+
+  /* ---------------- CHART ---------------- */
 
   const chartData = useMemo(() => {
     if (!transactions.length) return []
     return buildChartData(transactions, range.from, range.to)
   }, [transactions, range])
 
+  /* ---------------- TABLE ---------------- */
+
   const revenueData = useMemo(() => {
     if (!transactions.length) return []
     return buildRevenueByProduct(transactions, range.from, range.to)
   }, [transactions, range])
+
+  /* ---------------- CUSTOMER ---------------- */
 
   const customerMetrics = useMemo(() => {
     if (!transactions.length) return null
     return buildCustomerMetrics(transactions, range.from, range.to)
   }, [transactions, range])
 
+  /* ---------------- COHORT ---------------- */
+
   const cohortData = useMemo(() => {
     if (!fullData.length) return []
     return buildIcpCohort(fullData)
   }, [fullData])
+
+  /* ---------------- NEW VS RETURNING ---------------- */
 
   const revenueSplit = useMemo(() => {
     if (!transactions.length || !fullData.length) return null
@@ -113,14 +126,6 @@ export default function DashboardPage() {
       endDate: range.to,
     })
   }, [transactions, fullData, range])
-
-  // ✅ FIX AQUI (TIPADO)
-  const cards: { label: string; key: MetricKey }[] = [
-    { label: "Total", key: "total" },
-    { label: "Instructor Certification", key: "instructor" },
-    { label: "Integration", key: "integration" },
-    { label: "Non-ICP", key: "non-icp" },
-  ]
 
   return (
     <SidebarProvider>
@@ -158,7 +163,14 @@ export default function DashboardPage() {
 
                 {/* KPI CARDS */}
                 <div className="grid gap-6 md:grid-cols-4">
-                  {cards.map((card) => {
+                  {(
+                    [
+                      { label: "Total", key: "total" },
+                      { label: "Instructor Certification", key: "instructor" },
+                      { label: "Integration", key: "integration" },
+                      { label: "Non-ICP", key: "non-icp" },
+                    ] as { label: string; key: "total" | "instructor" | "integration" | "non-icp" }[]
+                  ).map((card) => {
                     const data = metrics?.[card.key]
 
                     return (
@@ -197,11 +209,95 @@ export default function DashboardPage() {
                   })}
                 </div>
 
-                {/* RESTO DO DASHBOARD IGUAL (não alterado) */}
-                {/* ... mantive tudo exatamente igual */}
+                {/* AREA + DONUT */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-                {/* NEW ROW FINAL */}
+                  <div className="md:col-span-3 rounded-2xl bg-white p-6 shadow-sm">
+                    {loading ? (
+                      <Skeleton className="h-[300px] w-full" />
+                    ) : (
+                      <SalesAreaChart data={chartData} />
+                    )}
+                  </div>
+
+                  <div className="md:col-span-1 rounded-2xl bg-white p-6 shadow-sm">
+                    <h2 className="text-sm font-medium text-gray-700 mb-4">
+                      Sales by category
+                    </h2>
+
+                    {loading ? (
+                      <Skeleton className="h-[200px] w-full" />
+                    ) : (
+                      <DonutChart
+                        data={{
+                          instructor: metrics?.instructor?.value || 0,
+                          integration: metrics?.integration?.value || 0,
+                          "non-icp": metrics?.["non-icp"]?.value || 0,
+                        }}
+                      />
+                    )}
+                  </div>
+
+                </div>
+
+                {/* THIRD ROW */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                  <div className="md:col-span-1 rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="space-y-4">
+
+                      <MiniKpiCard
+                        title="Sales"
+                        value={customerMetrics?.sales || 0}
+                        growth={customerMetrics?.salesGrowth}
+                        icon={<ShoppingCart className="w-5 h-5" />}
+                      />
+
+                      <MiniKpiCard
+                        title="Average Purchase Rate"
+                        value={
+                          customerMetrics
+                            ? customerMetrics.avgPurchaseRate.toFixed(2)
+                            : "0"
+                        }
+                        icon={<User className="w-5 h-5" />}
+                      />
+
+                      <MiniKpiCard
+                        title="Average LTV"
+                        value={
+                          customerMetrics
+                            ? `$${customerMetrics.avgLTV.toFixed(2)}`
+                            : "$0"
+                        }
+                        icon={<DollarSign className="w-5 h-5" />}
+                      />
+
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-3 rounded-2xl bg-white p-6 shadow-sm">
+                    {loading ? (
+                      <Skeleton className="h-[400px] w-full" />
+                    ) : (
+                      <RevenueByProductTable data={revenueData} />
+                    )}
+                  </div>
+
+                </div>
+
+                {/* COHORT */}
+                <div className="w-full max-w-full overflow-hidden">
+                  {loadingFull ? (
+                    <Skeleton className="h-[220px] w-full" />
+                  ) : (
+                    <IcpCohortCard data={cohortData} />
+                  )}
+                </div>
+
+                {/* ✅ NEW ROW FINAL */}
                 <div className="grid gap-6 md:grid-cols-4">
+
                   <div className="rounded-3xl border bg-[#f8fafc] p-6">
                     <p className="text-sm text-gray-600">
                       New vs Returning Revenue
@@ -247,6 +343,7 @@ export default function DashboardPage() {
                   <div className="rounded-3xl border bg-[#f8fafc] p-6">—</div>
                   <div className="rounded-3xl border bg-[#f8fafc] p-6">—</div>
                   <div className="rounded-3xl border bg-[#f8fafc] p-6">—</div>
+
                 </div>
 
               </>
