@@ -50,9 +50,8 @@ const getCachedData = unstable_cache(
       throw new Error("Missing Airtable env vars")
     }
 
-    // 🔥 RANGE DEFINIDO
     const startDate = "2024-10-01"
-    const endDate = "2026-04-02"
+    const endDate = new Date().toISOString().slice(0, 10)
 
     do {
       const url = new URL(
