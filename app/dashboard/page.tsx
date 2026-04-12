@@ -68,7 +68,12 @@ export default function DashboardPage() {
                 Sales Report
               </h1>
 
-              <DateRangePicker onChange={setRange} />
+              <<DateRangePicker
+  value={range}
+  onChange={(r) => {
+    if (r?.from && r?.to) setRange(r)
+  }}
+/>
             </div>
 
             {/* KPI CARDS */}
