@@ -1,11 +1,6 @@
 "use client"
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-} from "recharts"
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 
 type Props = {
   data: {
@@ -16,12 +11,11 @@ type Props = {
 }
 
 const COLORS = {
-  instructor: "#22c55e",
-  integration: "#3b82f6",
-  "non-icp": "#a855f7",
+  instructor: "#0046AD",  // GB Blue
+  integration: "#1A1A1A", // Near black
+  "non-icp":   "#FDF29C", // GB Gold
 }
 
-// 💰 formatação profissional
 function formatCurrency(value: number) {
   return value.toLocaleString("en-US", {
     style: "currency",
@@ -33,24 +27,9 @@ function formatCurrency(value: number) {
 export function DonutChart({ data }: Props) {
   const chartData = data
     ? [
-        {
-          key: "instructor",
-          name: "Instructor",
-          value: data.instructor,
-          color: COLORS.instructor,
-        },
-        {
-          key: "integration",
-          name: "Integration",
-          value: data.integration,
-          color: COLORS.integration,
-        },
-        {
-          key: "non-icp",
-          name: "Non-ICP",
-          value: data["non-icp"],
-          color: COLORS["non-icp"],
-        },
+        { key: "instructor", name: "Instructor",  value: data.instructor,    color: COLORS.instructor },
+        { key: "integration", name: "Integration", value: data.integration,   color: COLORS.integration },
+        { key: "non-icp",     name: "Non-ICP",     value: data["non-icp"],    color: COLORS["non-icp"] },
       ]
     : []
 
@@ -59,8 +38,7 @@ export function DonutChart({ data }: Props) {
   const chartDataWithPercent = chartData
     .map((item) => ({
       ...item,
-      percentage:
-        total > 0 ? Math.round((item.value / total) * 100) : 0,
+      percentage: total > 0 ? Math.round((item.value / total) * 100) : 0,
     }))
     .sort((a, b) => b.value - a.value)
 
@@ -69,17 +47,13 @@ export function DonutChart({ data }: Props) {
 
       {total === 0 && (
         <div className="h-[220px] flex items-center justify-center">
-          <p className="text-sm text-gray-400">
-            No data for selected period
-          </p>
+          <p className="text-sm" style={{ color: "#A7A9AC" }}>No data for selected period</p>
         </div>
       )}
 
       {total > 0 && (
         <>
-          {/* 🔥 CHART MAIOR */}
           <div className="relative w-full h-[220px] flex items-end justify-center">
-
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -87,8 +61,8 @@ export function DonutChart({ data }: Props) {
                   dataKey="value"
                   startAngle={180}
                   endAngle={0}
-                  innerRadius={80}   // 🔥 maior
-                  outerRadius={120} // 🔥 maior
+                  innerRadius={80}
+                  outerRadius={120}
                   paddingAngle={4}
                   stroke="none"
                   cy="85%"
@@ -100,50 +74,30 @@ export function DonutChart({ data }: Props) {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* 🔥 CENTER FIX */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none max-w-[180px]">
-              <span className="text-xs text-gray-500">
-                Total Sales
-              </span>
-
-              <span className="text-xl font-semibold text-center leading-tight">
+              <span className="text-xs" style={{ color: "#A7A9AC" }}>Total Sales</span>
+              <span className="text-xl font-semibold text-center leading-tight" style={{ color: "#141414" }}>
                 {formatCurrency(total)}
               </span>
             </div>
-
           </div>
 
-          {/* LEGENDA */}
           <div className="flex flex-col gap-3">
-
             {chartDataWithPercent.map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between"
-              >
+              <div key={item.key} className="flex items-center justify-between">
                 <div className="flex items-start gap-3">
                   <div
-                    className="w-2.5 h-2.5 rounded-full mt-1"
+                    className="w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-800">
-                      {item.name}
-                    </span>
-
-                    <span className="text-xs text-gray-400">
-                      {formatCurrency(item.value)}
-                    </span>
+                    <span className="text-sm font-medium" style={{ color: "#141414" }}>{item.name}</span>
+                    <span className="text-xs" style={{ color: "#A7A9AC" }}>{formatCurrency(item.value)}</span>
                   </div>
                 </div>
-
-                <span className="text-sm font-semibold text-gray-700">
-                  {item.percentage}%
-                </span>
+                <span className="text-sm font-semibold" style={{ color: "#636466" }}>{item.percentage}%</span>
               </div>
             ))}
-
           </div>
         </>
       )}

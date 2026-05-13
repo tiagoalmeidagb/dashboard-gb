@@ -1,3 +1,6 @@
+import { filterByDate } from "@/lib/metrics"
+import { normalizeProductName } from "@/lib/normalize-product"
+
 type Transaction = {
   date: string
   rawProduct: string
@@ -5,43 +8,15 @@ type Transaction = {
   email: string | null
 }
 
-// 🔥 DETECÇÃO REAL DE PARCELAS (BASEADO NO SEU DATASET)
-function normalizeProductName(name: string) {
-  return name
-    .toLowerCase()
-
-    // remove blocos de datas + pagamentos
-    .replace(/\(.*?\)/g, "")
-
-    // remove padrões de parcelas
-    .replace(/\d+\s*\/\s*\d+/g, "") // 1/3
-    .replace(/payments?.*/g, "")
-    .replace(/pagamentos?.*/g, "")
-    .replace(/\/month.*/g, "")
-    .replace(/\/m[eê]s.*/g, "")
-
-    // limpeza geral
-    .replace(/\s+/g, " ")
-    .trim()
-}
-
-// 🔥 filtra + ignora value 0
+// filtra por email/value + timezone-safe date range (Phoenix, alinhado com o resto do codebase)
 function filterValidTransactions(
   data: Transaction[],
   from?: Date,
   to?: Date
 ) {
-  return data.filter((t) => {
-    if (!t.email) return false
-    if (!t.value || t.value <= 0) return false
-
-    if (from && to) {
-      const d = new Date(t.date)
-      return d >= from && d <= to
-    }
-
-    return true
-  })
+  const withEmail = data.filter((t) => !!t.email && t.value > 0)
+  if (from && to) return filterByDate(withEmail, from, to)
+  return withEmail
 }
 
 function getPreviousPeriod(from: Date, to: Date) {
@@ -69,7 +44,8 @@ function buildUniqueSales(data: Transaction[]) {
 export function buildCustomerMetrics(
   data: Transaction[],
   from: Date,
-  to: Date
+  to: Date,
+  allData?: Transaction[]
 ) {
   // 🔥 CURRENT (filtrado + sem value 0)
   const current = filterValidTransactions(data, from, to)
@@ -93,19 +69,22 @@ export function buildCustomerMetrics(
 
   // ======================
   // ✅ AVG PURCHASE (GLOBAL)
+  // Usa allData (histórico completo) se disponível,
+  // senão cai para data (janela filtrada).
   // ======================
-  const validAll = filterValidTransactions(data)
+  const validAll = filterValidTransactions(allData ?? data)
 
   const customerProducts = new Map<string, Set<string>>()
 
   validAll.forEach((t) => {
     const product = normalizeProductName(t.rawProduct)
+    const email = t.email!.toLowerCase()
 
-    if (!customerProducts.has(t.email!)) {
-      customerProducts.set(t.email!, new Set())
+    if (!customerProducts.has(email)) {
+      customerProducts.set(email, new Set())
     }
 
-    customerProducts.get(t.email!)!.add(product)
+    customerProducts.get(email)!.add(product)
   })
 
   const totalProducts = Array.from(customerProducts.values()).reduce(
@@ -124,9 +103,10 @@ export function buildCustomerMetrics(
   const revenuePerCustomer = new Map<string, number>()
 
   validAll.forEach((t) => {
+    const email = t.email!.toLowerCase()
     revenuePerCustomer.set(
-      t.email!,
-      (revenuePerCustomer.get(t.email!) || 0) + t.value
+      email,
+      (revenuePerCustomer.get(email) || 0) + t.value
     )
   })
 

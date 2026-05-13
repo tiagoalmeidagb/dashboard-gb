@@ -1,6 +1,6 @@
 "use client"
 
-type Tab = "sales" | "website" | "email"
+export type Tab = "sales" | "website" | "email" | "campanhas" | "conteudo"
 
 export function TopTabs({
   value,
@@ -13,6 +13,8 @@ export function TopTabs({
     { key: "sales", label: "Sales" },
     { key: "website", label: "Website" },
     { key: "email", label: "Email" },
+    { key: "campanhas", label: "Campaigns" },
+    { key: "conteudo", label: "Conteúdo" },
   ]
 
   return (

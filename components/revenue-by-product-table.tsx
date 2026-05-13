@@ -22,8 +22,9 @@ function formatCurrency(value: number) {
   }).format(value)
 }
 
-function getGrowth(current: number, previous: number) {
-  if (previous === 0) return null
+function getGrowth(current: number, previous: number): number | null {
+  if (previous === 0 && current === 0) return null
+  if (previous === 0 && current > 0) return 100
   return ((current - previous) / previous) * 100
 }
 

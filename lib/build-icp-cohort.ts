@@ -2,7 +2,7 @@ type Transaction = {
   date: string
   rawProduct: string
   value: number
-  email: string
+  email: string | null
 }
 
 export type CohortItem = {

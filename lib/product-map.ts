@@ -14,10 +14,8 @@ export type ProductCategory =
   | "Integration Yearly"
   | "Unknown"
 
-// 🔥 SAFE NORMALIZE (NUNCA MAIS QUEBRA)
 function normalize(text?: string) {
   if (!text || typeof text !== "string") return ""
-
   return text
     .toLowerCase()
     .normalize("NFD")
@@ -27,11 +25,19 @@ function normalize(text?: string) {
 export function mapProductToCategory(name?: string): ProductCategory {
   const n = normalize(name)
 
+  // ── ICP / Instructor ──────────────────────────────────────────────
   if (n.includes("icp") || n.includes("pci")) return "ICP"
+  if (n.includes("assistant instructor"))       return "ICP"
 
-  if (n.includes("fundamentos gb") || n.includes("gb foundations"))
-    return "GB Foundations"
+  // ── GB Foundations (EN + FR) ──────────────────────────────────────
+  if (
+    n.includes("fundamentos gb") ||
+    n.includes("gb foundations") ||
+    n.includes("gb fondations") ||    // French spelling
+    n.includes("fondations gb")
+  ) return "GB Foundations"
 
+  // ── Other instructor courses ──────────────────────────────────────
   if (n.includes("raising champions") || n.includes("criando campeoes"))
     return "Raising Champions"
 
@@ -55,14 +61,25 @@ export function mapProductToCategory(name?: string): ProductCategory {
   if (n.includes("habits of gb leaders") || n.includes("habitos dos lideres"))
     return "Habits of GB Leaders"
 
-  if (n.includes("self defense") || n.includes("defesa pessoal"))
-    return "Women's Self-Defense"
+  // ── Integration ───────────────────────────────────────────────────
+  // Matches: "integration", "integracao" (Portuguese, after NFD normalization)
+  // Also handles: GBI Integration, Integração IGB, Integração GBI, etc.
+  const isIntegration =
+    n.includes("integration") ||
+    n.includes("integracao") ||
+    n.includes("integra igb") ||
+    n.includes("integra gbi")
 
-  if (n.includes("integration") && n.includes("year"))
-    return "Integration Yearly"
-
-  if (n.includes("integration") && n.includes("month"))
+  if (isIntegration) {
+    // Explicitly yearly if "year" or "anual" in the name
+    if (n.includes("year") || n.includes("anual")) return "Integration Yearly"
+    // Everything else (monthly instalments, GBI variants, etc.) → Monthly
     return "Integration Monthly"
+  }
 
-  return "Unknown"
+  // ── Women's Self-Defense + Non-ICP catch-all ──────────────────────
+  // Covers: Women's Self-Defense product, Leading Women's Self-Defense,
+  // Blue Belt Certificate, GBK Certification, Pro Shop, School Owner,
+  // Masterclass, and any remaining non-ICP products.
+  return "Women's Self-Defense"
 }

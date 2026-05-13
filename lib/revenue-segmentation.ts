@@ -1,7 +1,10 @@
+import { normalizeProductName } from "@/lib/normalize-product"
+
 type AirtableRow = {
-  email: string
+  email: string | null
   date: string
   value: number
+  rawProduct?: string
 }
 
 type RevenueSplit = {
@@ -37,8 +40,8 @@ export function calculateNewVsReturningRevenue({
 
   let newRevenue = 0
   let returningRevenue = 0
-  let newSales = 0
-  let returningSales = 0
+  const newSalesSet = new Set<string>()
+  const returningSalesSet = new Set<string>()
 
   for (const row of filteredData) {
     if (!row.email || row.value <= 0) continue
@@ -46,19 +49,21 @@ export function calculateNewVsReturningRevenue({
     const firstPurchase = firstPurchaseMap.get(row.email)
     if (!firstPurchase) continue
 
+    const key = `${row.email}-${normalizeProductName(row.rawProduct ?? "")}`
+
     if (firstPurchase >= startDate && firstPurchase <= endDate) {
       newRevenue += row.value
-      newSales++
+      newSalesSet.add(key)
     } else if (firstPurchase < startDate) {
       returningRevenue += row.value
-      returningSales++
+      returningSalesSet.add(key)
     }
   }
 
   return {
     newRevenue,
     returningRevenue,
-    newSales,
-    returningSales,
+    newSales: newSalesSet.size,
+    returningSales: returningSalesSet.size,
   }
 }

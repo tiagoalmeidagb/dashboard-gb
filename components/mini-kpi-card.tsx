@@ -19,8 +19,8 @@ export default function MiniKpiCard({
     <div className="flex items-center justify-between p-4 rounded-xl bg-[#f3f6f8]">
       
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-lime-300">
-          {icon}
+        <div className="w-10 h-10 flex items-center justify-center rounded-lg" style={{ background: "#D4D9E0" }}>
+          <span style={{ color: "#8A95A3" }}>{icon}</span>
         </div>
 
         <div className="flex flex-col">

@@ -84,7 +84,7 @@
   --chart-4: oklch(0.505 0.213 27.518);
   --chart-5: oklch(0.444 0.177 26.899);
 
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: oklch(0.577 0.245 27.325);
   --sidebar-primary-foreground: oklch(0.971 0.013 17.38);
@@ -138,13 +138,41 @@
   --sidebar-ring: oklch(0.396 0.141 25.723);
 }
 
+/* ── GRACIE BARRA BRAND COLORS ── */
+:root {
+  /* Primary palette */
+  --gb-red:          #E2211C;
+  --gb-cobalt:       #004B8D;
+  --gb-gray:         #A7A9AC;
+  --gb-dark-gray:    #636466;
+  --gb-almost-black: #141414;
+  --gb-almost-white: #F9F9F9;
+
+  /* Secondary palette */
+  --gb-red-3:        #EDACA7;
+  --gb-cobalt-3:     #B9CFE6;
+  --gb-gold:         #FDF29C;
+  --gb-gray-2:       #B2B2B2;
+  --gb-gray-3:       #C6C6C6;
+  --gb-gray-4:       #DADADA;
+  --gb-gray-5:       #EDEDED;
+
+  /* Blue-tinted grays (digital use) */
+  --gb-bluegray-50:  #F0F4FA;
+  --gb-bluegray-100: #E0E8F4;
+  --gb-bluegray-200: #C2D0E8;
+  --gb-bluegray-400: #8A9AB8;
+  --gb-bluegray-600: #5A6B85;
+  --gb-bluegray-900: #1E2D45;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: Arial, sans-serif; /* 👈 garante Arial */
+    font-family: Arial, sans-serif;
   }
   html {
     @apply font-sans;

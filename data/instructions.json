@@ -1,0 +1,15 @@
+{
+  "general": {
+    "toneOfVoice": "",
+    "targetAudience": "",
+    "generalRules": ""
+  },
+  "formats": {
+    "email": "",
+    "whatsapp": "",
+    "carousel": ""
+  },
+  "products": [],
+  "examples": [],
+  "updatedAt": ""
+}

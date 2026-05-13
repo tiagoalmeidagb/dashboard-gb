@@ -1,0 +1,29 @@
+[
+  {
+    "title": "teste",
+    "description": "tet",
+    "angle": "teste",
+    "product": "instructor",
+    "formats": {
+      "email": true,
+      "whatsapp": true,
+      "carousel": true
+    },
+    "id": "c6351737-9026-4b4c-946b-1ab2a93f826e",
+    "order": 0,
+    "createdAt": "2026-05-01T20:41:59.500Z"
+  },
+  {
+    "title": "teste 2",
+    "angle": "te",
+    "product": "integration",
+    "formats": {
+      "email": true,
+      "whatsapp": false,
+      "carousel": false
+    },
+    "id": "6f3df9e6-3933-4fa9-87a8-1384f29ab082",
+    "order": 1,
+    "createdAt": "2026-05-01T21:37:10.163Z"
+  }
+]
